@@ -1,19 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Repository.Generic
 {
-    public class GenericRepository<C, T> : IGenericRepository<T>, IDisposable where C : DbContext where T : class
+    public class GenericRepository<TC, T> : IGenericRepository<T>, IDisposable where TC : DbContext where T : class
     {
-        protected C Context { get; }
+        protected TC Context { get; }
 
         protected DbSet<T> Data { get; }
 
-        public GenericRepository(C context)
+        public GenericRepository(TC context)
         {
             Context = context;
             Data = Context.Set<T>();
@@ -33,12 +33,12 @@ namespace API.Repository.Generic
         {
             if (withTransaction)
             {
-                async Task<T> action()
+                async Task<T> Action()
                 {
                     return await Create(entity);
-                };
+                }
 
-                return await ExecuteInTransaction(action);
+                return await ExecuteInTransaction(Action);
             }
             else
             {
@@ -52,6 +52,7 @@ namespace API.Repository.Generic
             {
                 throw new ArgumentException("Null Context");
             }
+
             if (entity == null)
             {
                 throw new ArgumentException("Null Parameter");
@@ -60,21 +61,18 @@ namespace API.Repository.Generic
             await Data.AddAsync(entity);
             await Context.SaveChangesAsync();
             return entity;
-
         }
-
 
         public virtual async Task<int> Delete(T entity, bool withTransaction = true)
         {
             if (withTransaction)
             {
-
-                async Task<int> action()
+                async Task<int> Action()
                 {
                     return await Remove(entity);
-                };
+                }
 
-                return await ExecuteInTransaction(action);
+                return await ExecuteInTransaction(Action);
             }
             else
             {
@@ -88,25 +86,26 @@ namespace API.Repository.Generic
             {
                 throw new ArgumentException("Null Context");
             }
+
             if (entity == null)
             {
                 throw new ArgumentException("Null Parameter");
             }
+
             Data.Remove(entity);
             return await Context.SaveChangesAsync();
-
         }
 
         public virtual async Task<T> Edit(T entity, bool withTransaction = true)
         {
             if (withTransaction)
             {
-                async Task<T> action()
+                async Task<T> Action()
                 {
                     return await Update(entity);
-                };
+                }
 
-                return await ExecuteInTransaction(action);
+                return await ExecuteInTransaction(Action);
             }
             else
             {
@@ -120,22 +119,23 @@ namespace API.Repository.Generic
             {
                 throw new ArgumentException("Null Context");
             }
+
             if (entity == null)
             {
                 throw new ArgumentException("Null Parameter");
             }
+
             Data.Update(entity);
             await Context.SaveChangesAsync();
             return entity;
         }
-
 
         public virtual void Dispose()
         {
             Context.Dispose();
         }
 
-        public async Task<R> ExecuteInTransaction<R>(Func<Task<R>> action)
+        public async Task<TR> ExecuteInTransaction<TR>(Func<Task<TR>> action)
         {
             if (Context.Database.IsSqlServer())
             {
@@ -143,7 +143,7 @@ namespace API.Repository.Generic
                 {
                     try
                     {
-                        R entity = await action();
+                        TR entity = await action();
                         transaction.Commit();
                         return entity;
                     }
@@ -159,11 +159,10 @@ namespace API.Repository.Generic
             }
             else
             {
-                //do nothing
+                // do nothing
                 return default;
             }
         }
-
 
         public void ExecuteInTransaction(Action action)
         {
@@ -188,7 +187,7 @@ namespace API.Repository.Generic
                 }
                 else
                 {
-                    //transaction already run
+                    // transaction already run
                     using (var transaction = currentTransaction)
                     {
                         try
@@ -202,8 +201,6 @@ namespace API.Repository.Generic
                         }
                     }
                 }
-
-
             }
             else if (Context.Database.IsInMemory())
             {
@@ -211,7 +208,7 @@ namespace API.Repository.Generic
             }
             else
             {
-                //do nothing
+                // do nothing
             }
         }
     }

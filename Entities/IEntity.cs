@@ -2,7 +2,7 @@
 
 namespace Entities
 {
-    public interface IEntity<T, X> : IEqualityComparer<X>
+    public interface IEntity<T, TX> : IEqualityComparer<TX>
     {
         T Id { get; set; }
     }

@@ -1,6 +1,5 @@
-﻿using Core;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using Core;
 using Core.Extensions;
 
 namespace Entities.Model
@@ -9,7 +8,6 @@ namespace Entities.Model
     {
         public Role()
         {
-
         }
 
         public Role(RoleEnum permission)
@@ -20,7 +18,7 @@ namespace Entities.Model
 
         [Key]
         public string Id { get; set; }
-        
+
         public string Label { get; set; }
 
         public bool Equals(Role x, Role y)

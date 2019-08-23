@@ -1,21 +1,21 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Text;
+using API;
+using API.Helpers;
+using API.Repository.Implementation;
+using API.Repository.Interfaces;
+using AutoMapper;
+using Entities.Context;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
-using System.Text;
 using Swashbuckle.AspNetCore.Swagger;
-using API.Helpers;
-using Entities.Context;
-using API;
-using API.Repository.Interfaces;
-using API.Repository.Implementation;
-using AutoMapper;
 
 namespace MZP.WS
 {
@@ -35,10 +35,10 @@ namespace MZP.WS
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddControllersAsServices()
-                .AddJsonOptions(options => {
+                .AddJsonOptions(options =>
+                {
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                 });
-
 
             if (!Configuration.GetValue<string>("Mock").Equals("true"))
             {
@@ -63,7 +63,6 @@ namespace MZP.WS
                 c.SwaggerDoc("v1", new Info { Title = "MZP API", Version = "v1" });
             });
 
-
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
             var appSettings = appSettingsSection.Get<AppSettings>();
@@ -82,13 +81,12 @@ namespace MZP.WS
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(key),
                         ValidateIssuer = false,
-                        ValidateAudience = false
+                        ValidateAudience = false,
                     };
                 });
 
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

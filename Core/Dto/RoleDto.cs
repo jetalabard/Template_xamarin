@@ -10,7 +10,6 @@ namespace Core.Dto
 
         public RoleDto()
         {
-
         }
 
         public RoleDto(RoleEnum role)

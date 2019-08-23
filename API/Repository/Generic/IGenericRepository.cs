@@ -17,7 +17,7 @@ namespace API.Repository.Generic
 
         Task<T> Edit(T entity, bool withTransaction = true);
 
-        Task<R> ExecuteInTransaction<R>(Func<Task<R>> action);
+        Task<TR> ExecuteInTransaction<TR>(Func<Task<TR>> action);
 
         void ExecuteInTransaction(Action action);
     }

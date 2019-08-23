@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-
 using Forms.Models;
+using Xamarin.Forms;
 
 namespace Forms.Views
 {
-    // Learn more about making custom code visible in the Xamarin.Forms previewer
-    // by visiting https://aka.ms/xamarinforms-previewer
+    /// <summary>
+    /// page to create new item.
+    /// </summary>
     [DesignTimeVisible(false)]
     public partial class NewItemPage : ContentPage
     {
@@ -22,17 +20,17 @@ namespace Forms.Views
             Item = new Item
             {
                 Text = "Item name",
-                Description = "This is an item description."
+                Description = "This is an item description.",
             };
 
             BindingContext = this;
         }
 
-        async void Save_Clicked(object sender, EventArgs e)
+        private void Save_Clicked(object sender, EventArgs e)
         {
         }
 
-        async void Cancel_Clicked(object sender, EventArgs e)
+        private void Cancel_Clicked(object sender, EventArgs e)
         {
         }
     }

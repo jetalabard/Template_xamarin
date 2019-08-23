@@ -1,7 +1,7 @@
-﻿using Core.Configuration;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Core.Configuration;
 
 namespace Forms.iOS.Configuration
 {

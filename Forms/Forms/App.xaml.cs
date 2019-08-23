@@ -1,25 +1,32 @@
-﻿using Xamarin.Forms;
-using Forms.Services;
-using Forms.Views;
-using Prism;
+﻿using Core;
 using Forms.Helpers;
 using Forms.Resources.localization;
-using Core;
-using Prism.Ioc;
-using Prism.DryIoc;
-using Prism.Plugin.Popups;
 using Forms.ViewModels;
+using Forms.Views;
+using Prism;
+using Prism.Ioc;
+using Prism.Plugin.Popups;
+using Xamarin.Forms;
 
 namespace Forms
 {
+    /// <summary>
+    /// Run application.
+    /// </summary>
     public partial class App
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="App"/> class.
         /// </summary>
-        public App() : this(null) { }
+        public App()
+            : this(null)
+        {
+        }
 
-        public App(IPlatformInitializer initializer) : base(initializer) { }
+        public App(IPlatformInitializer initializer)
+            : base(initializer)
+        {
+        }
 
         protected override async void OnInitialized()
         {
@@ -29,7 +36,6 @@ namespace Forms
 
             await NavigationService.NavigateAsync(PageNameConstants.AUTHENTIFICATION_PAGE);
         }
-
 
         protected override void OnStart()
         {
@@ -54,12 +60,8 @@ namespace Forms
             containerRegistry.RegisterPopupNavigationService();
         }
 
-
-
         protected void RegisterNavigation(IContainerRegistry containerRegistry)
         {
-
-
             containerRegistry.RegisterForNavigation<MainPage, MainPageViewModel>(PageNameConstants.MAIN);
             containerRegistry.RegisterForNavigation<NavigationPage>(PageNameConstants.NAV);
             containerRegistry.RegisterForNavigation<Page>();
@@ -74,26 +76,26 @@ namespace Forms
 
         protected void RegisterDependencyInjection(IContainerRegistry containerRegistry)
         {
-            //containerRegistry.Register<IAuthenticationManager, AuthenticationManager>();
-            //containerRegistry.Register<IStoreCredentialService, StoreCredentialService>();
-            //containerRegistry.Register<IHashService, HashService>();
-            //containerRegistry.Register<IAuthenticationService, DbAuthenticationService>();
+            // containerRegistry.Register<IAuthenticationManager, AuthenticationManager>();
+            // containerRegistry.Register<IStoreCredentialService, StoreCredentialService>();
+            // containerRegistry.Register<IHashService, HashService>();
+            // containerRegistry.Register<IAuthenticationService, DbAuthenticationService>();
 
-            //Rest Authentification
-            //var container = containerRegistry.GetContainer();
-            //container.UseInstance(<UserRepository>(new UserRepository(false));
-            //var autoInjectProps = Made.Of(propertiesAndFields: PropertiesAndFields.Name();
-            //container.Register<UserRepository>(Reuse.InCurrentScope, autoInjectProps);
-            //container.Register<UserRepository>();
-            //container.RegisterInstance(false);
-            //container.Register<ContractRepository>();
+            // Rest Authentification
+            // var container = containerRegistry.GetContainer();
+            // container.UseInstance(<UserRepository>(new UserRepository(false));
+            // var autoInjectProps = Made.Of(propertiesAndFields: PropertiesAndFields.Name();
+            // container.Register<UserRepository>(Reuse.InCurrentScope, autoInjectProps);
+            // container.Register<UserRepository>();
+            // container.RegisterInstance(false);
+            // container.Register<ContractRepository>();
 
-            //container.Register<ContractRepository>(Reuse.InCurrentScope, autoInjectProps);
-            //container.RegisterInstance(false);
+            // container.Register<ContractRepository>(Reuse.InCurrentScope, autoInjectProps);
+            // container.RegisterInstance(false);
 
             // 3) Register string with key and Foo with strongly typed constructor specification
-            //container.Register<UserRepository>(Made.Of(() => new UserRepository(Arg.Of<bool>(false))));
-            //container.RegisterInstance("my string", serviceKey: "someSetting");
+            // container.Register<UserRepository>(Made.Of(() => new UserRepository(Arg.Of<bool>(false))));
+            // container.RegisterInstance("my string", serviceKey: "someSetting");
         }
     }
 }

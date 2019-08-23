@@ -1,25 +1,26 @@
-﻿using API.Repository.Generic;
-using API.Repository.Interfaces;
-using Core;
-using Entities.Context;
-using Entities.Model;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using API.Repository.Generic;
+using API.Repository.Interfaces;
+using Core;
+using Entities.Context;
+using Entities.Model;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API.Repository.Implementation
 {
     public class UserRepository : GenericRepository<TemplateContext, User>, IUserRepository
     {
-        public UserRepository(TemplateContext context) : base(context)
-        { }
-
+        public UserRepository(TemplateContext context)
+            : base(context)
+        {
+        }
 
         public async void Initialize()
         {
@@ -43,22 +44,27 @@ namespace API.Repository.Implementation
             return await Context.Users.Include(u => u.Role).ToListAsync();
         }
 
-
         public Task<User> Authenticate(string username, string password, string secret)
         {
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
                 return null;
+            }
 
             var user = Context.Users.Include(u => u.Role)
                 .SingleOrDefault(x => x.Id == username);
 
             // check if user exists
             if (user == null)
+            {
                 return null;
+            }
 
             // check if password is correct
             if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            {
                 return null;
+            }
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(secret);
@@ -86,7 +92,7 @@ namespace API.Repository.Implementation
                 return null;
             }
 
-            Task<User> action()
+            Task<User> Action()
             {
                 CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
                 user.PasswordHash = passwordHash;
@@ -98,11 +104,9 @@ namespace API.Repository.Implementation
                 Context.SaveChanges();
 
                 return Task.FromResult(user);
-            };
+            }
 
-            return await ExecuteInTransaction(action);
-
-
+            return await ExecuteInTransaction(Action);
         }
 
         public Role AffectDefaultRole(User user)
@@ -115,11 +119,17 @@ namespace API.Repository.Implementation
             return user.Role;
         }
 
-
         private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
-            if (password == null) throw new ArgumentNullException(nameof(password));
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(password));
+            if (password == null)
+            {
+                throw new ArgumentNullException(nameof(password));
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(password));
+            }
 
             using (var hmac = new System.Security.Cryptography.HMACSHA512())
             {
@@ -130,23 +140,40 @@ namespace API.Repository.Implementation
 
         private static bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
         {
-            if (password == null) throw new ArgumentNullException(nameof(password));
-            if (string.IsNullOrWhiteSpace(password)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(password));
-            if (storedHash.Length != 64) throw new ArgumentException("Invalid length of password hash (64 bytes expected).", nameof(storedHash));
-            if (storedSalt.Length != 128) throw new ArgumentException("Invalid length of password salt (128 bytes expected).", nameof(storedHash));
+            if (password == null)
+            {
+                throw new ArgumentNullException(nameof(password));
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(password));
+            }
+
+            if (storedHash.Length != 64)
+            {
+                throw new ArgumentException("Invalid length of password hash (64 bytes expected).", nameof(storedHash));
+            }
+
+            if (storedSalt.Length != 128)
+            {
+                throw new ArgumentException("Invalid length of password salt (128 bytes expected).", nameof(storedHash));
+            }
 
             using (var hmac = new System.Security.Cryptography.HMACSHA512(storedSalt))
             {
                 var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
                 for (int i = 0; i < computedHash.Length; i++)
                 {
-                    if (computedHash[i] != storedHash[i]) return false;
+                    if (computedHash[i] != storedHash[i])
+                    {
+                        return false;
+                    }
                 }
             }
 
             return true;
         }
-
 
         public async Task<List<User>> GetFilteredUsersByMatriculeOrName(string filter)
         {
@@ -154,6 +181,5 @@ namespace API.Repository.Implementation
                 || c.FirstName.Contains(filter, StringComparison.OrdinalIgnoreCase)
                 || c.LastName.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToListAsync();
         }
-
     }
 }

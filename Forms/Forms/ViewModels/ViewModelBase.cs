@@ -1,24 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
-using Xamarin.Forms;
-
 using Forms.Models;
 using Forms.Services;
-using Prism.Navigation;
-using Prism.Mvvm;
 using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Navigation;
+using Xamarin.Forms;
 
 namespace Forms.ViewModels
 {
     public class ViewModelBase : BindableBase, INavigationAware, INotifyPropertyChanged
     {
         public IDataStore<Item> DataStore => DependencyService.Get<IDataStore<Item>>() ?? new MockDataStore();
+
         protected INavigationService NavigationService { get; private set; }
+
         internal string ParentPageName { get; set; }
-        public static string PARENT_PARAMETER = "PARENT_PARAMETER";
+
+        public const string PARENT_PARAMETER = "PARENT_PARAMETER";
+
         public DelegateCommand<string> OnNavigateCommand { get; set; }
 
         private async void NavigateAsync(string page)
@@ -27,6 +27,7 @@ namespace Forms.ViewModels
         }
 
         private string _title;
+
         public string Title
         {
             get { return _title; }
@@ -34,6 +35,7 @@ namespace Forms.ViewModels
         }
 
         private bool _isBusy;
+
         public bool IsBusy
         {
             get { return _isBusy; }
@@ -53,22 +55,18 @@ namespace Forms.ViewModels
 
         public virtual void OnNavigatedFrom(INavigationParameters parameters)
         {
-
         }
 
         public virtual void OnNavigatedTo(INavigationParameters parameters)
         {
-
         }
 
         public virtual void OnNavigatingTo(INavigationParameters parameters)
         {
-
         }
 
         public virtual void Destroy()
         {
-
         }
     }
 }

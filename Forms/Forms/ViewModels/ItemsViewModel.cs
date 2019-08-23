@@ -2,33 +2,34 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
-
-using Xamarin.Forms;
-
-using Forms.Models;
-using Forms.Views;
-using Prism.Navigation;
 using System.Windows.Input;
 using Core;
-using System.Linq;
+using Forms.Models;
+using Forms.Services;
+using Forms.Views;
 using Prism.Commands;
+using Prism.Navigation;
+using Xamarin.Forms;
 
 namespace Forms.ViewModels
 {
     public class ItemsViewModel : ViewModelBase
     {
         public ObservableCollection<Item> Items { get; set; }
+
+        private readonly IDataStore<Item> _store;
+
         public Command LoadItemsCommand { get; set; }
 
         internal ICommand AddItemCommand { get; }
 
         internal ICommand ItemTappedCommand { get; }
 
-        
-
-        public ItemsViewModel(INavigationService navigationService) : base(navigationService)
+        public ItemsViewModel(INavigationService navigationService, IDataStore<Item> store)
+            : base(navigationService)
         {
             Title = "Browse";
+            _store = store;
             Items = new ObservableCollection<Item>();
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
 
@@ -42,25 +43,32 @@ namespace Forms.ViewModels
             ItemTappedCommand = new DelegateCommand<Item>(OnItemTappedCommandExecuted);
         }
 
-        async void OnItemTappedCommandExecuted(Item item)
+        public async override void OnNavigatedTo(INavigationParameters parameters)
+        {
+            base.OnNavigatedTo(parameters);
+            Items = new ObservableCollection<Item>(await _store.GetItemsAsync());
+        }
+
+        private async void OnItemTappedCommandExecuted(Item item)
         {
             NavigationParameters navParameters = new NavigationParameters
             {
-                { ItemDetailViewModel.ITEM , item },
+                { ItemDetailViewModel.ITEM, item },
             };
-            await NavigationService.NavigateAsync(PageNameConstants.DETAIL_ITEM,navParameters);
+            await NavigationService.NavigateAsync(PageNameConstants.DETAIL_ITEM, navParameters);
         }
-
 
         internal async void AddItem_Clicked()
         {
             await NavigationService.NavigateAsync(PageNameConstants.NEW_ITEM);
         }
 
-        async Task ExecuteLoadItemsCommand()
+        private async Task ExecuteLoadItemsCommand()
         {
             if (IsBusy)
+            {
                 return;
+            }
 
             IsBusy = true;
 

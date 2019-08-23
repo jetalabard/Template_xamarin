@@ -1,14 +1,13 @@
-﻿using Core;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Windows.Input;
+using Core;
 using Core.Dto;
 using Forms.Helpers;
 using Forms.Models;
 using Prism.Commands;
 using Prism.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Windows.Input;
 using Xamarin.Forms;
 
 namespace Forms.ViewModels
@@ -16,10 +15,13 @@ namespace Forms.ViewModels
     public class MainPageViewModel : ViewModelBase
     {
         public ICommand DisconnectCommand { get; }
+
         public ICommand ItemTappedCommand { get; }
+
         public ICommand SettingsCommand { get; }
 
-        public MainPageViewModel(INavigationService navigationService) : base(navigationService)
+        public MainPageViewModel(INavigationService navigationService)
+            : base(navigationService)
         {
             _currentProfil = ApplicationContext.Instance.CurrentUser;
 
@@ -29,7 +31,6 @@ namespace Forms.ViewModels
             DisconnectCommand = new Command(OnDisconnectCommand);
             ItemTappedCommand = new DelegateCommand<HomeMenuItem>(OnItemTappedCommandExecuted);
         }
-
 
         private async void OnItemTappedCommandExecuted(HomeMenuItem obj)
         {
@@ -56,25 +57,29 @@ namespace Forms.ViewModels
                     });
                 }
             }
-
         }
 
         private void SetMenuItems()
         {
             List<HomeMenuItemList> itemSource = new List<HomeMenuItemList>();
 
-            HomeMenuItemList list = new HomeMenuItemList("Général");
-            list.Add(new HomeMenuItem { Id = PageType.Home, Title = "Accueil", PageUri = PageNameConstants.HOME });
+            HomeMenuItemList list = new HomeMenuItemList("Général")
+            {
+                new HomeMenuItem { Id = PageType.Home, Title = "Accueil", PageUri = PageNameConstants.HOME },
+            };
             itemSource.Add(list);
 
-            string Code = ApplicationContext.Instance?.CurrentUser?.Role?.Code;
+            string code = ApplicationContext.Instance?.CurrentUser?.Role?.Code;
 
-            if (Code == RoleEnum.Admin.ToString())
+            if (code == RoleEnum.Admin.ToString())
             {
-                list = new HomeMenuItemList("Administration");
-                list.Add(new HomeMenuItem { Id = PageType.Administration, Title = "Add Item", PageUri = PageNameConstants.NEW_ITEM });
+                list = new HomeMenuItemList("Administration")
+                {
+                    new HomeMenuItem { Id = PageType.Administration, Title = "Add Item", PageUri = PageNameConstants.NEW_ITEM },
+                };
                 itemSource.Add(list);
             }
+
             list.Add(new HomeMenuItem { Id = PageType.About, Title = "A Propos", PageUri = PageNameConstants.ABOUT });
 
             _listMenuItem = itemSource;
@@ -83,10 +88,11 @@ namespace Forms.ViewModels
         private async void OnDisconnectCommand(object obj)
         {
             ApplicationContext.Instance.CurrentUser = null;
-            await base.NavigationService.NavigateAsync(PageNameConstants.AUTHENTIFICATION_PAGE);
+            await NavigationService.NavigateAsync(PageNameConstants.AUTHENTIFICATION_PAGE);
         }
 
         private ImageSource _profilPicture;
+
         public ImageSource ProfilPicture
         {
             get { return _profilPicture; }
@@ -94,6 +100,7 @@ namespace Forms.ViewModels
         }
 
         private List<HomeMenuItemList> _listMenuItem;
+
         public List<HomeMenuItemList> ListMenuItem
         {
             get { return _listMenuItem; }
@@ -101,6 +108,7 @@ namespace Forms.ViewModels
         }
 
         private UserDto _currentProfil;
+
         public UserDto CurrentProfil
         {
             get { return _currentProfil; }
