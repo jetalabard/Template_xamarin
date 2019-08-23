@@ -3,3 +3,17 @@
 ################################################################################
 
 /API/bin/Debug/netcoreapp2.2
+/.vs/Template/v16/Server/sqlite3
+/API/obj
+/Core/bin/Debug/netstandard2.0
+/Core/obj
+/Entities/bin/Debug/netcoreapp2.2
+/Entities/obj
+/Forms/Forms/bin/Debug/netstandard2.0
+/Forms/Forms/obj
+/Forms/Forms.Android/bin/Debug
+/Forms/Forms.Android/obj
+/Forms/Forms.iOS/bin/iPhone/Debug
+/Forms/Forms.iOS/obj
+/Forms/Forms.UWP/bin/x86/Debug
+/Forms/Forms.UWP/obj

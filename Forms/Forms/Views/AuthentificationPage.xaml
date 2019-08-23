@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:Forms.Helpers"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             x:Class="Forms.Views.AuthentificationPage" 
+             NavigationPage.HasNavigationBar="False"
+             Title="{Binding [Auth_Title], Source={x:Static helpers:ResourceLoader.Instance}}">
+
+
+    <FlexLayout Direction="Column">
+
+        <FlexLayout FlexLayout.Grow="1" AlignItems="Stretch" JustifyContent="Center" Direction="Column">
+            <Image x:Name="CompanyLogo" HeightRequest="200" WidthRequest="400" FlexLayout.AlignSelf="Center"></Image>
+            <Label Text="{Binding [App_Name], Source={x:Static helpers:ResourceLoader.Instance}}"  FontSize="Large" 
+                   TextColor="Black" FontFamily="{StaticResource RegularFontWS}"  FlexLayout.AlignSelf="Center"/>
+            <Label FontFamily="{StaticResource RegularFontWS}" Text="{Binding ErrorMessage}" TextColor="Red" FlexLayout.AlignSelf="Center" Margin="5" ></Label>
+            <Entry Text="{Binding Username, Mode=TwoWay}"  FlexLayout.AlignSelf="Center" Margin="5"
+                       Placeholder="{Binding [Label_User], Source={x:Static helpers:ResourceLoader.Instance}}" 
+                       ReturnType="Next" 
+                       Completed="Entry_Completed" HorizontalOptions="Center" WidthRequest="300"/>
+            <Entry x:Name="PasswordEntry"  FlexLayout.AlignSelf="Center" Margin="5"
+                       IsPassword="True" Text="{Binding Password, Mode=TwoWay}" 
+                       Placeholder="{Binding [Label_Password], Source={x:Static helpers:ResourceLoader.Instance}}" 
+                       ReturnType="Done"  HorizontalOptions="CenterAndExpand" WidthRequest="300"
+                       ReturnCommand="{Binding ValidateCommand}"></Entry>
+            <Button Margin="5" IsEnabled="{Binding IsNotBusy, Mode=OneWay}" Command="{Binding ValidateCommand}" Style="{StaticResource StickyDarkBlueButton}" FlexLayout.AlignSelf="Center" Text="{Binding [Login_Label], Source={x:Static helpers:ResourceLoader.Instance}}" HorizontalOptions="Center" WidthRequest="300"/>
+            <ActivityIndicator x:Name="activityIndicator" IsRunning="{Binding IsBusy, Mode=OneWay}" VerticalOptions="Center" />
+        </FlexLayout>
+
+        <Image x:Name="DigitalFactoryLogo" HeightRequest="150" WidthRequest="150" FlexLayout.AlignSelf="Center" HorizontalOptions="Center" />
+    </FlexLayout>
+</ContentPage>
