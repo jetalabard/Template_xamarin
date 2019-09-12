@@ -19,12 +19,12 @@ namespace API.Repository.Generic
             Data = Context.Set<T>();
         }
 
-        public virtual async Task<List<T>> GetAll()
+        public virtual async Task<IEnumerable<T>> GetAll()
         {
             return await Data.ToListAsync();
         }
 
-        public virtual async Task<List<T>> FindBy(Expression<Func<T, bool>> predicate)
+        public virtual async Task<IEnumerable<T>> FindBy(Expression<Func<T, bool>> predicate)
         {
             return await Data.AsQueryable().Where(predicate).ToListAsync();
         }

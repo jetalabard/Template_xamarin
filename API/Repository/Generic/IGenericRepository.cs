@@ -7,9 +7,9 @@ namespace API.Repository.Generic
 {
     public interface IGenericRepository<T> : IDisposable where T : class
     {
-        Task<List<T>> GetAll();
+        Task<IEnumerable<T>> GetAll();
 
-        Task<List<T>> FindBy(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> FindBy(Expression<Func<T, bool>> predicate);
 
         Task<T> Add(T entity, bool withTransaction = true);
 

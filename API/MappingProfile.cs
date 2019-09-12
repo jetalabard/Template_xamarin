@@ -9,14 +9,9 @@ namespace API
         public MappingProfile()
         {
             // Add as many of these lines as you need to map your objects
-            CreateMappingTwoDirection<User, UserDto>();
-            CreateMappingTwoDirection<Role, RoleDto>();
+            CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<Role, RoleDto>().ReverseMap();
         }
 
-        private void CreateMappingTwoDirection<T, TW>()
-        {
-            CreateMap<T, TW>();
-            CreateMap<TW, T>();
-        }
     }
 }

@@ -151,7 +151,7 @@
     <value>Mot de passe</value>
   </data>
   <data name="Label_User" xml:space="preserve">
-    <value>Matricule</value>
+    <value>Identifant</value>
   </data>
   <data name="Language" xml:space="preserve">
     <value>Langue</value>

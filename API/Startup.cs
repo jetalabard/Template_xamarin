@@ -60,7 +60,7 @@ namespace MZP.WS
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "MZP API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { Title = "Template API", Version = "v1" });
             });
 
             var appSettingsSection = Configuration.GetSection("AppSettings");

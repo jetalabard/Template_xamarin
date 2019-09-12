@@ -11,10 +11,12 @@ namespace API.Repository.Interfaces
 
         Task<User> Get(string id);
 
-        Task<List<User>> GetFilteredUsersByMatriculeOrName(string filter);
+        Task<IEnumerable<User>> GetFilteredUsersByMatriculeOrName(string filter);
 
         Task<User> Create(User user, string password);
 
         Task<User> Authenticate(string username, string password, string secret);
+
+        Task<User> UpdatePassword(string idUser, string password);
     }
 }

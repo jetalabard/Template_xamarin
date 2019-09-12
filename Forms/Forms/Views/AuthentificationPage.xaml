@@ -12,10 +12,10 @@
     <FlexLayout Direction="Column">
 
         <FlexLayout FlexLayout.Grow="1" AlignItems="Stretch" JustifyContent="Center" Direction="Column">
-            <Image x:Name="CompanyLogo" HeightRequest="200" WidthRequest="400" FlexLayout.AlignSelf="Center"></Image>
+            <Image x:Name="CompanyLogo" HeightRequest="200" WidthRequest="400" FlexLayout.AlignSelf="Center"/>
             <Label Text="{Binding [App_Name], Source={x:Static helpers:ResourceLoader.Instance}}"  FontSize="Large" 
                    TextColor="Black" FontFamily="{StaticResource RegularFontWS}"  FlexLayout.AlignSelf="Center"/>
-            <Label FontFamily="{StaticResource RegularFontWS}" Text="{Binding ErrorMessage}" TextColor="Red" FlexLayout.AlignSelf="Center" Margin="5" ></Label>
+            <Label FontFamily="{StaticResource RegularFontWS}" Text="{Binding ErrorMessage}" TextColor="Red" FlexLayout.AlignSelf="Center" Margin="5"/>
             <Entry Text="{Binding Username, Mode=TwoWay}"  FlexLayout.AlignSelf="Center" Margin="5"
                        Placeholder="{Binding [Label_User], Source={x:Static helpers:ResourceLoader.Instance}}" 
                        ReturnType="Next" 

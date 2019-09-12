@@ -39,7 +39,7 @@ namespace API.Repository.Implementation
                 .SingleOrDefaultAsync(user => user.Id == id);
         }
 
-        public async new Task<List<User>> GetAll()
+        public async new Task<IEnumerable<User>> GetAll()
         {
             return await Context.Users.Include(u => u.Role).ToListAsync();
         }
@@ -175,11 +175,30 @@ namespace API.Repository.Implementation
             return true;
         }
 
-        public async Task<List<User>> GetFilteredUsersByMatriculeOrName(string filter)
+        public async Task<IEnumerable<User>> GetFilteredUsersByMatriculeOrName(string filter)
         {
             return await Context.Users.Include(p => p.Role).Where(c => c.Id.Contains(filter, StringComparison.OrdinalIgnoreCase)
                 || c.FirstName.Contains(filter, StringComparison.OrdinalIgnoreCase)
                 || c.LastName.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToListAsync();
+        }
+
+        public async Task<User> UpdatePassword(string idUser, string password)
+        {
+            User user = await Context.Users.FirstOrDefaultAsync(x => x.Id == idUser);
+
+            Task<User> Action()
+            {
+                CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
+                user.PasswordHash = passwordHash;
+                user.PasswordSalt = passwordSalt;
+
+                Context.Users.Update(user);
+                Context.SaveChanges();
+
+                return Task.FromResult(user);
+            }
+
+            return await ExecuteInTransaction(Action);
         }
     }
 }
