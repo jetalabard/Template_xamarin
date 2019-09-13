@@ -17,6 +17,10 @@ namespace API.Repository.Interfaces
 
         Task<User> Authenticate(string username, string password, string secret);
 
-        Task<User> UpdatePassword(string idUser, string password);
+        Task<User> UpdatePassword(User user, string password);
+
+        Task<User> UpdateEmail(User user, string email);
+
+        Task<User> UpdateRole(User user, string roleId);
     }
 }

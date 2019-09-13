@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class UsersController : Controller
     {
         private readonly IUserRepository _repository;
@@ -27,7 +29,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
-            var list = Mapper.Map<IEnumerable<UserDto>>(await _repository.GetAll());
+            var list = _mapper.Map<IEnumerable<UserDto>>(await _repository.GetAll());
             if (!list.Any())
             {
                 return NoContent();
@@ -42,7 +44,7 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserDto>> Get(string id)
         {
-            var obj = Mapper.Map<UserDto>(await _repository.Get(id));
+            var obj = _mapper.Map<UserDto>(await _repository.Get(id));
             if (obj != null)
             {
                 return NotFound();
@@ -57,11 +59,12 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<UserDto>> Post([FromBody] UserDto user)
         {
-            var obj = Mapper.Map<UserDto>(await _repository.Add(Mapper.Map<User>(user)));
-            if (obj != null)
+            if (user == null)
             {
-                return BadRequest();
+                return BadRequest("User is Null");
             }
+
+            var obj = _mapper.Map<UserDto>(await _repository.Add(Mapper.Map<User>(user)));
 
             return Ok(obj);
         }
@@ -93,6 +96,75 @@ namespace API.Controllers
             }
 
             return action;
+        }
+
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPut("password/{password}/{id}")]
+        public async Task<ActionResult<UserDto>> UpdatePassword(string password, string id)
+        {
+            User user = await _repository.Get(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user = await _repository.UpdatePassword(user, password);
+
+            if (user == null)
+            {
+                return StatusCode(500);
+            }
+
+            return Ok(user);
+        }
+
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPut("email/{email}/{id}")]
+        public async Task<ActionResult<UserDto>> UpdateEmail(string email, string id)
+        {
+            User user = await _repository.Get(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user = await _repository.UpdateEmail(user, email);
+
+            if (user == null)
+            {
+                return StatusCode(500);
+            }
+
+            return Ok(user);
+        }
+
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [HttpPut("role/{roleId}/{id}")]
+        public async Task<ActionResult<UserDto>> UpdateRole(string roleId, string id)
+        {
+            User user = await _repository.Get(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user = await _repository.UpdatePassword(user, roleId);
+
+            if (user == null)
+            {
+                return StatusCode(500);
+            }
+
+            return Ok(user);
         }
     }
 }

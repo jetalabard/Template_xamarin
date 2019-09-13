@@ -12,6 +12,5 @@ namespace API
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<Role, RoleDto>().ReverseMap();
         }
-
     }
 }

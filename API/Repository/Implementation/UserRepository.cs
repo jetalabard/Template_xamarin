@@ -182,10 +182,8 @@ namespace API.Repository.Implementation
                 || c.LastName.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToListAsync();
         }
 
-        public async Task<User> UpdatePassword(string idUser, string password)
+        public async Task<User> UpdatePassword(User user, string password)
         {
-            User user = await Context.Users.FirstOrDefaultAsync(x => x.Id == idUser);
-
             Task<User> Action()
             {
                 CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
@@ -194,6 +192,30 @@ namespace API.Repository.Implementation
 
                 Context.Users.Update(user);
                 Context.SaveChanges();
+
+                return Task.FromResult(user);
+            }
+
+            return await ExecuteInTransaction(Action);
+        }
+
+        public async Task<User> UpdateEmail(User user, string email)
+        {
+            Task<User> Action()
+            {
+                user.Email = email;
+
+                return Task.FromResult(user);
+            }
+
+            return await ExecuteInTransaction(Action);
+        }
+
+        public async Task<User> UpdateRole(User user, string roleId)
+        {
+            Task<User> Action()
+            {
+                user.RoleId = roleId;
 
                 return Task.FromResult(user);
             }
