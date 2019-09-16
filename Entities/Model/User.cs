@@ -9,6 +9,8 @@ namespace Entities.Model
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
+        public string PersonalId { get; set; }
+
         public string LastName { get; set; }
 
         public string FirstName { get; set; }
@@ -23,7 +25,7 @@ namespace Entities.Model
 
         public string Token { get; set; }
 
-        [ForeignKey("Role")]
+        [ForeignKey(nameof(Role))]
         public string RoleId { get; set; }
 
         public Role Role { get; set; }

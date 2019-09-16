@@ -2,10 +2,8 @@
 
 namespace Core.Dto
 {
-    public class RoleDto
+    public class RoleDto : Dto
     {
-        public string Code { get; set; }
-
         public string Label { get; set; }
 
         public RoleDto()
@@ -14,7 +12,7 @@ namespace Core.Dto
 
         public RoleDto(RoleEnum role)
         {
-            Code = role.ToString();
+            Id = role.ToString();
             Label = role.DisplayName();
         }
     }

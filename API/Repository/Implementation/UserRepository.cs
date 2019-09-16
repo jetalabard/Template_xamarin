@@ -85,13 +85,13 @@ namespace API.Repository.Implementation
             return Task.FromResult(user);
         }
 
+        public async Task<bool> CheckPersonalIdExist(string personalId)
+        {
+            return await Context.Users.AnyAsync(x => x.PersonalId == personalId);
+        }
+
         public async Task<User> Create(User user, string password)
         {
-            if (string.IsNullOrWhiteSpace(password) || Context.Users.Any(x => x.Id == user.Id))
-            {
-                return null;
-            }
-
             Task<User> Action()
             {
                 CreatePasswordHash(password, out var passwordHash, out var passwordSalt);

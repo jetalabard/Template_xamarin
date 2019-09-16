@@ -22,5 +22,7 @@ namespace API.Repository.Interfaces
         Task<User> UpdateEmail(User user, string email);
 
         Task<User> UpdateRole(User user, string roleId);
+
+        Task<bool> CheckPersonalIdExist(string personalId);
     }
 }

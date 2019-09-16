@@ -1,9 +1,7 @@
-﻿namespace Forms.Models
+﻿namespace Core.Dto
 {
-    public class Item
+    public class Item : Dto
     {
-        public string Id { get; set; }
-
         public string Text { get; set; }
 
         public string Description { get; set; }
