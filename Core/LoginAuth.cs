@@ -1,4 +1,6 @@
-﻿namespace Core
+﻿using Core.Dto;
+
+namespace Core
 {
     public class LoginAuth
     {

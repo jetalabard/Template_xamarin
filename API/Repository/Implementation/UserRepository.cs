@@ -182,45 +182,53 @@ namespace API.Repository.Implementation
                 || c.LastName.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToListAsync();
         }
 
-        public async Task<User> UpdatePassword(User user, string password)
+        public async Task<bool> UpdatePassword(string userId, string password)
         {
-            Task<User> Action()
+            try
             {
-                CreatePasswordHash(password, out var passwordHash, out var passwordSalt);
+                User user = await Get(userId);
+                CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
                 user.PasswordHash = passwordHash;
                 user.PasswordSalt = passwordSalt;
 
-                Context.Users.Update(user);
-                Context.SaveChanges();
-
-                return Task.FromResult(user);
+                return (await Edit(user).ConfigureAwait(false)) != null ? true : false;
             }
-
-            return await ExecuteInTransaction(Action);
+            catch
+            {
+                throw;
+            }
         }
 
-        public async Task<User> UpdateEmail(User user, string email)
+        public async Task<User> UpdateEmail(string userId, string email)
         {
-            Task<User> Action()
+            try
             {
+                User user = await Get(userId);
+
                 user.Email = email;
 
-                return Task.FromResult(user);
+                return await Edit(user);
             }
-
-            return await ExecuteInTransaction(Action);
+            catch
+            {
+                throw;
+            }
         }
 
-        public async Task<User> UpdateRole(User user, string roleId)
+        public async Task<User> UpdateRole(string userId, string roleId)
         {
-            Task<User> Action()
+            try
             {
+                User user = await Get(userId);
+
                 user.RoleId = roleId;
 
-                return Task.FromResult(user);
+                return await Edit(user);
             }
-
-            return await ExecuteInTransaction(Action);
+            catch
+            {
+                throw;
+            }
         }
     }
 }

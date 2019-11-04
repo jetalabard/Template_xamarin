@@ -1,4 +1,5 @@
-﻿using Forms.Models;
+﻿using Core.Dto;
+using Forms.Models;
 using Prism.Navigation;
 
 namespace Forms.ViewModels

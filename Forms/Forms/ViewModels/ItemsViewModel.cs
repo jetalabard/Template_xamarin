@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Core;
+using Core.Dto;
 using Forms.Models;
 using Forms.Services;
 using Forms.Views;

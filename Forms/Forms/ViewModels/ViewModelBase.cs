@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using Core.Dto;
 using Forms.Models;
 using Forms.Services;
 using Prism.Commands;

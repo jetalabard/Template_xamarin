@@ -11,19 +11,21 @@ using Entities.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace API.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class RoleController : Controller
+    public class RoleController : AbstractController
     {
         private readonly IRoleRepository _repository;
 
         private readonly IMapper _mapper;
 
-        public RoleController(IRoleRepository repo, IMapper mapper)
+        public RoleController(IRoleRepository repo, IMapper mapper, ILoggerFactory loggerFactory)
+            : base(mapper, loggerFactory, nameof(RoleController))
         {
             _repository = repo;
             _mapper = mapper;
@@ -34,13 +36,12 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult<IEnumerable<RoleDto>>> GetAll()
         {
-            var list = _mapper.Map<IEnumerable<RoleDto>>(await _repository.GetAll());
-            if (!list.Any())
+            async Task<IEnumerable<Role>> Action()
             {
-                return NoContent();
+                return await _repository.GetAll();
             }
 
-            return Ok(list);
+            return await ManageError<IEnumerable<RoleDto>, IEnumerable<Role>>(Action);
         }
 
         // GET api/values/5
@@ -49,13 +50,17 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<RoleDto>> Get(string id)
         {
-            var obj = _mapper.Map<RoleDto>(await _repository.Get(id));
-            if (obj == null)
+            if (string.IsNullOrEmpty(id))
             {
-                return NotFound();
+                return BadRequest("Id is null or empty");
             }
 
-            return Ok(obj);
+            async Task<Role> Action()
+            {
+                return await _repository.Get(id);
+            }
+
+            return await ManageError<RoleDto, Role>(Action);
         }
 
         // POST api/values
@@ -70,9 +75,12 @@ namespace API.Controllers
                 return BadRequest("Role is Null");
             }
 
-            RoleDto obj = _mapper.Map<RoleDto>(await _repository.Add(_mapper.Map<Role>(user)));
+            async Task<Role> Action()
+            {
+                return await _repository.Add(_mapper.Map<Role>(user));
+            }
 
-            return Ok(obj);
+            return await ManageError<RoleDto, Role>(Action);
         }
 
         // DELETE api/values/5
@@ -84,22 +92,26 @@ namespace API.Controllers
         public async Task<ActionResult<int>> Delete(string id)
         {
             ActionResult<int> action;
+
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("Id is null");
+            }
+
             Role role = await _repository.Get(id);
             if (role == null)
             {
-                action = NotFound();
+                return NotFound("Object is not found");
+            }
+
+            int ret = await _repository.Delete(role);
+            if (ret != 1)
+            {
+                action = BadRequest();
             }
             else
             {
-                int obj = await _repository.Delete(role);
-                if (obj != 1)
-                {
-                    action = BadRequest();
-                }
-                else
-                {
-                    action = Ok(obj);
-                }
+                action = Ok(ret);
             }
 
             return action;

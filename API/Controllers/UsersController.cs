@@ -11,6 +11,7 @@ using Entities.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace API.Controllers
@@ -18,7 +19,7 @@ namespace API.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : Controller
+    public class UsersController : AbstractController
     {
         private readonly IUserRepository _repository;
 
@@ -26,7 +27,8 @@ namespace API.Controllers
 
         private readonly AppSettings _appSettings;
 
-        public UsersController(IUserRepository repo, IOptions<AppSettings> appSettings, IMapper mapper)
+        public UsersController(IUserRepository repo, IOptions<AppSettings> appSettings, IMapper mapper, ILoggerFactory loggerFactory)
+            : base(mapper, loggerFactory, nameof(UsersController))
         {
             _repository = repo;
             _mapper = mapper;
@@ -38,28 +40,31 @@ namespace API.Controllers
         [HttpPost("authenticate")]
         public async Task<ActionResult<UserDto>> Authenticate([FromBody]LoginAuth userlogin)
         {
-            User user = await _repository.Authenticate(userlogin.User, userlogin.Password, _appSettings.Secret);
-
-            if (user == null)
+            if (userlogin == null || string.IsNullOrEmpty(userlogin.User) || string.IsNullOrEmpty(userlogin.Password))
             {
-                return BadRequest(new LoginResult(LoginStatus.InvalidCredential, null));
+                return BadRequest(new ApiError(400, "parameters null", Logger));
             }
 
-            return Ok(_mapper.Map<UserDto>(user));
+            async Task<User> Action()
+            {
+                return await _repository.Authenticate(userlogin.User, userlogin.Password, _appSettings.Secret).ConfigureAwait(false);
+            }
+
+            return await ManageError<UserDto, User>(Action).ConfigureAwait(false);
         }
 
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpPost("register")]
         [Role(RoleEnum.Admin)]
-        public async Task<ActionResult<UserDto>> Register([FromBody]UserDto user, string userPassword)
+        public async Task<ActionResult<UserDto>> Register([FromBody]SecureUserDto user)
         {
             if (user == null)
             {
                 return BadRequest("User is Null");
             }
 
-            if (string.IsNullOrWhiteSpace(userPassword))
+            if (string.IsNullOrWhiteSpace(user.Password))
             {
                 return BadRequest("Passsword is Null");
             }
@@ -69,13 +74,12 @@ namespace API.Controllers
                 return BadRequest("Personnal Id already exist");
             }
 
-            User result = await _repository.Create(_mapper.Map<User>(user), userPassword);
-            if (result != null)
+            async Task<User> Action()
             {
-                return Ok(_mapper.Map<UserDto>(result));
+                return await _repository.Create(Mapper.Map<User>(user), user.Password);
             }
 
-            return BadRequest();
+            return await ManageError<UserDto, User>(Action);
         }
 
         [HttpGet("all")]
@@ -83,13 +87,12 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetAll()
         {
-            var list = _mapper.Map<IEnumerable<UserDto>>(await _repository.GetAll());
-            if (!list.Any())
+            async Task<IEnumerable<User>> Action()
             {
-                return NoContent();
+                return await _repository.GetAll();
             }
 
-            return Ok(list);
+            return await ManageError<IEnumerable<UserDto>, IEnumerable<User>>(Action);
         }
 
         // GET api/values/5
@@ -98,13 +101,17 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<UserDto>> Get(string id)
         {
-            var obj = _mapper.Map<UserDto>(await _repository.Get(id));
-            if (obj == null)
+            if (string.IsNullOrEmpty(id))
             {
-                return NotFound();
+                return BadRequest("Id is null or empty");
             }
 
-            return Ok(obj);
+            async Task<User> Action()
+            {
+                return await _repository.Get(id);
+            }
+
+            return await ManageError<UserDto, User>(Action);
         }
 
         // DELETE api/values/5
@@ -116,22 +123,26 @@ namespace API.Controllers
         public async Task<ActionResult<int>> Delete(string id)
         {
             ActionResult<int> action;
+
+            if (string.IsNullOrEmpty(id))
+            {
+                return BadRequest("Id is null");
+            }
+
             User user = await _repository.Get(id);
             if (user == null)
             {
-                action = NotFound();
+                return NotFound("Object is not found");
+            }
+
+            int ret = await _repository.Delete(user);
+            if (ret != 1)
+            {
+                action = BadRequest();
             }
             else
             {
-                int obj = await _repository.Delete(user);
-                if (obj != 1)
-                {
-                    action = BadRequest();
-                }
-                else
-                {
-                    action = Ok(obj);
-                }
+                action = Ok(ret);
             }
 
             return action;
@@ -141,24 +152,23 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Role(RoleEnum.Admin | RoleEnum.Default)]
-        [HttpPut("password/{password}/{id}")]
-        public async Task<ActionResult<UserDto>> UpdatePassword(string password, string id)
+        [HttpPut("password")]
+        public async Task<ActionResult<UserDto>> UpdatePassword([FromBody]LoginAuth userlogin)
         {
-            User user = await _repository.Get(id);
-
-            if (user == null)
+            async Task<User> Action()
             {
-                return NotFound();
+                bool isUpdate = await _repository.UpdatePassword(userlogin.User, userlogin.Password).ConfigureAwait(false);
+                if (isUpdate)
+                {
+                    return await _repository.Get(userlogin.User).ConfigureAwait(false);
+                }
+                else
+                {
+                    throw new Exception("Update not executed");
+                }
             }
 
-            user = await _repository.UpdatePassword(user, password);
-
-            if (user == null)
-            {
-                return StatusCode(500);
-            }
-
-            return Ok(user);
+            return await ManageError<UserDto, User>(Action).ConfigureAwait(false);
         }
 
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -168,21 +178,17 @@ namespace API.Controllers
         [Role(RoleEnum.Admin | RoleEnum.Default)]
         public async Task<ActionResult<UserDto>> UpdateEmail(string email, string id)
         {
-            User user = await _repository.Get(id);
-
-            if (user == null)
+            if (string.IsNullOrEmpty(id))
             {
-                return NotFound();
+                return BadRequest("Id is null or empty");
             }
 
-            user = await _repository.UpdateEmail(user, email);
-
-            if (user == null)
+            async Task<User> Action()
             {
-                return StatusCode(500);
+                return await _repository.UpdateEmail(id, email);
             }
 
-            return Ok(user);
+            return await ManageError<UserDto, User>(Action);
         }
 
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -192,21 +198,17 @@ namespace API.Controllers
         [Role(RoleEnum.Admin)]
         public async Task<ActionResult<UserDto>> UpdateRole(string roleId, string id)
         {
-            User user = await _repository.Get(id);
-
-            if (user == null)
+            if (string.IsNullOrEmpty(id))
             {
-                return NotFound();
+                return BadRequest("Id is null or empty");
             }
 
-            user = await _repository.UpdateRole(user, roleId);
-
-            if (user == null)
+            async Task<User> Action()
             {
-                return StatusCode(500);
+                return await _repository.UpdateRole(id, roleId);
             }
 
-            return Ok(user);
+            return await ManageError<UserDto, User>(Action);
         }
     }
 }

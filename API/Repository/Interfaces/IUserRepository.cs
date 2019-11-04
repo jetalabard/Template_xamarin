@@ -17,11 +17,11 @@ namespace API.Repository.Interfaces
 
         Task<User> Authenticate(string username, string password, string secret);
 
-        Task<User> UpdatePassword(User user, string password);
+        Task<bool> UpdatePassword(string userId, string password);
 
-        Task<User> UpdateEmail(User user, string email);
+        Task<User> UpdateEmail(string userId, string email);
 
-        Task<User> UpdateRole(User user, string roleId);
+        Task<User> UpdateRole(string userId, string roleId);
 
         Task<bool> CheckPersonalIdExist(string personalId);
     }
