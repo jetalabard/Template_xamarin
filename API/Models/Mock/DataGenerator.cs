@@ -35,7 +35,10 @@ namespace API.Models.Mock
             string password = "Admin123!";
             foreach (User user in context.Users)
             {
-                _ = await new UserRepository(context).UpdatePassword(user.Id, password);
+                using (var repo = new UserRepository(context))
+                {
+                    _ = await repo.UpdatePassword(user.Id, password);
+                }
             }
         }
     }
