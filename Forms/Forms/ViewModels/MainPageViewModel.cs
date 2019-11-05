@@ -69,7 +69,7 @@ namespace Forms.ViewModels
             };
             itemSource.Add(list);
 
-            string code = ApplicationContext.Instance?.CurrentUser?.Role?.Code;
+            string code = ApplicationContext.Instance?.CurrentUser?.Role?.Id;
 
             if (code == RoleEnum.Admin.ToString())
             {

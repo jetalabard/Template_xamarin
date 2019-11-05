@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using Forms.Models;
+using Core.Dto;
 using Xamarin.Forms;
 
 namespace Forms.Views
